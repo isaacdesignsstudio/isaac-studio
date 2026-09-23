@@ -5,12 +5,43 @@
     <meta charset="utf-8" />
     <title>My case studies</title>
     <style>
-      body { font-family: system-ui; background: #F6F3EE; margin: 40px; }
+      body { font-family: system-ui; background: #F6F3EE; margin: 40px; color: #111; }
+      table { width: 100%; max-width: 720px; border-collapse: collapse; }
+      th, td { text-align: left; padding: 12px 8px; border-bottom: 1px solid #ddd; }
     </style>
   </head>
   <body>
     <h1>My case studies</h1>
-    <p>Logged in. List comes next.</p>
+    <p id="msg">Loading…</p>
+    <table id="list" hidden>
+      <thead><tr><th>Title</th><th>Status</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <script>
+      import { supabase } from "../lib/supabase";
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) window.location.href = "/";
+
+      const { data, error } = await supabase
+        .from("studies")
+        .select("id,title,slug,status")
+        .order("created_at", { ascending: false });
+
+      const msg = document.getElementById("msg");
+      if (error) { msg.textContent = error.message; }
+      else if (!data?.length) { msg.textContent = "No studies yet."; }
+      else {
+        msg.hidden = true;
+        const table = document.getElementById("list");
+        table.hidden = false;
+        const body = table.querySelector("tbody");
+        for (const row of data) {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td>${row.title}</td><td>${row.status}</td>`;
+          body.appendChild(tr);
+        }
+      }
+    </script>
   </body>
 </html>
-
