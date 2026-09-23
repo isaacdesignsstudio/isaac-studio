@@ -1,11 +1,39 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Isaac Designs Studio</title>
+    <style>
+      body { font-family: system-ui; background: #F6F3EE; color: #111; margin: 0; }
+      main { max-width: 360px; margin: 20vh auto; }
+      input, button { width: 100%; padding: 12px; margin: 8px 0; box-sizing: border-box; }
+      button { background: #111; color: #fff; border: 0; cursor: pointer; }
+      .err { color: #b00; min-height: 1.2em; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Isaac Designs Studio</h1>
+      <form id="login">
+        <input id="email" type="email" placeholder="Email" required />
+        <input id="password" type="password" placeholder="Password" required />
+        <p class="err" id="err"></p>
+        <button type="submit">Log in</button>
+      </form>
+    </main>
+    <script>
+      import { supabase } from "../lib/supabase";
 
-<Layout>
-	<Welcome />
-</Layout>
+      document.getElementById("login")?.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const email = (document.getElementById("email") as HTMLInputElement).value;
+        const password = (document.getElementById("password") as HTMLInputElement).value;
+        const err = document.getElementById("err");
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) { if (err) err.textContent = error.message; return; }
+        window.location.href = "/work";
+      });
+    </script>
+  </body>
+</html>
